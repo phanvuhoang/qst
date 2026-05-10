@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  qst-web:
+    build: .
+    container_name: qst-web
+    ports:
+      - "80"
+    environment:
+      - QST_DB_HOST=mysql
+      - QST_DB_NAME=qst
+      - QST_DB_USER=qst
+      - QST_DB_PASS=Qst#captain2
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - qst-network
+
+  mysql:
+    image: mysql:5.7
+    container_name: qst-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: QstRoot#captain2
+      MYSQL_DATABASE: qst
+      MYSQL_USER: qst
+      MYSQL_PASSWORD: 'Qst#captain2'
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./qst_gpl/qst.sql:/docker-entrypoint-initdb.d/01-qst.sql:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - qst-network
+
+volumes:
+  mysql-data:
+
+networks:
+  qst-network:
+    name: qst-network

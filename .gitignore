@@ -1,0 +1,5 @@
+*.pdf
+*.tar
+WINQST_files/
+mac_*
+!.github/
