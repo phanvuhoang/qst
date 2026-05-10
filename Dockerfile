@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache modules
-RUN a2enmod perl && a2enmod apreq
+RUN a2enmod perl && a2enmod apreq2
 
 # Create app directories
 RUN mkdir -p /home /var/www/qst
