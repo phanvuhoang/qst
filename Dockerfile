@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Disable ALL optional modules — keep only essential ones
+RUN a2dismod autoindex deflate status negotiation mime_magic alias auth_basic authn_anon authn_dbm authn_socache authnz_fcgi authnz_ldap authz_dbm authz_groupfile authz_owner authz_user access_compat authz_core authz_host authn_core authn_file setenvif reqtimeout filter env headers version socache_shmcb ssl 2>/dev/null || true
+
 # Create app directories
 RUN mkdir -p /home /var/www/qst
 
