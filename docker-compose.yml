@@ -1,46 +1,48 @@
-version: '3.8'
+name: qst
 
 services:
-  qst-web:
-    build: .
-    container_name: qst-web
-    ports:
-      - "80"
+  mysql:
+    image: mysql:5.7
     environment:
-      - QST_DB_HOST=mysql
-      - QST_DB_NAME=qst
-      - QST_DB_USER=qst
-      - QST_DB_PASS=Qst#captain2
+      MYSQL_ROOT_PASSWORD: Qst#captain2
+      MYSQL_DATABASE: qst
+      MYSQL_USER: qst
+      MYSQL_PASSWORD: Qst#captain2
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-allowed-packet=64M
+    volumes:
+      - qst-mysql:/var/lib/mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "qst", "-pQst#captain2"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  qst-web:
+    image: ghcr.io/phanvuhoang/qst-web:latest
+    environment:
+      QST_DB_HOST: mysql
+      QST_DB_NAME: qst
+      QST_DB_USER: qst
+      QST_DB_PASS: "Qst#captain2"
+    networks:
+      - default
+      - dokploy-network
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.qst.rule=Host(`assessments.learnfor.me`)
+      - traefik.http.routers.qst.entrypoints=websecure
+      - traefik.http.routers.qst.tls.certresolver=letsencrypt
+      - traefik.http.services.qst.loadbalancer.server.port=80
+      - traefik.docker.network=dokploy-network
     depends_on:
       mysql:
         condition: service_healthy
     restart: unless-stopped
-    networks:
-      - qst-network
-
-  mysql:
-    image: mysql:5.7
-    container_name: qst-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: QstRoot#captain2
-      MYSQL_DATABASE: qst
-      MYSQL_USER: qst
-      MYSQL_PASSWORD: 'Qst#captain2'
-    volumes:
-      - mysql-data:/var/lib/mysql
-      - ./qst_gpl/qst.sql:/docker-entrypoint-initdb.d/01-qst.sql:ro
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - qst-network
-
-volumes:
-  mysql-data:
 
 networks:
-  qst-network:
-    name: qst-network
+  dokploy-network:
+    external: true
+
+volumes:
+  qst-mysql:
