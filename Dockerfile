@@ -2,12 +2,10 @@ FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Apache2 + mod_perl2 + required Perl modules
+# Install Apache2 + mod_perl2 + system packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apache2 \
     libapache2-mod-perl2 \
-    libapache2-mod-apreq2 \
-    libapache2-request-perl \
     libapache-dbi-perl \
     libdbd-mysql-perl \
     libdbi-perl \
@@ -17,11 +15,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     make \
     gcc \
     libssl-dev \
-    libcrypt-pbkdf2-perl \
+    libexpat1-dev \
+    perl \
     && rm -rf /var/lib/apt/lists/*
 
+# Install libapreq2 (Apache2::Request) via CPAN — Debian package is broken on Bookworm
+RUN cpanm -n Apache2::Request
+
+# Install Crypt::PBKDF2 via CPAN (not in Debian repo)
+RUN cpanm -n Crypt::PBKDF2
+
 # Enable Apache modules
-RUN a2enmod perl && a2enmod apreq2
+RUN a2enmod perl
 
 # Create app directories
 RUN mkdir -p /home /var/www/qst
