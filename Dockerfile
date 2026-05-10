@@ -20,6 +20,12 @@ COPY qst_gpl/qst.sql /home/qst.sql
 COPY qst_gpl/qst/ /var/www/qst/
 COPY qst_gpl/schools/ /var/www/qst/schools/
 
+# DEBUG: List .htm files to verify and break cache
+RUN echo "=== DEBUG: /var/www/qst/ files ===" && ls -la /var/www/qst/*.htm /var/www/qst/*.html 2>&1 && echo "=== DEBUG: /var/www/qst/schools/ .htm files ===" && ls /var/www/qst/schools/*.htm 2>&1 | head -10
+
+# DEBUG: Create a guaranteed test
+RUN echo "<h1>OK</h1>" > /var/www/qst/ok.htm && echo "<h1>OKHTML</h1>" > /var/www/qst/ok.html
+
 # Copy Apache config
 COPY qst-apache.conf /etc/apache2/sites-available/qst.conf
 
