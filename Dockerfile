@@ -2,32 +2,17 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Apache2 + mod_perl2 + all dependencies via apt
+# Install ONLY Apache2 (no Perl!)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apache2 \
-    libapache2-mod-perl2 \
-    libapache2-mod-apreq2 \
-    libapache2-request-perl \
-    libapache-dbi-perl \
-    libdbd-mysql-perl \
-    libdbi-perl \
-    libarchive-zip-perl \
-    libmime-base64-perl \
-    libcrypt-pbkdf2-perl \
     default-mysql-client \
     curl \
-    perl \
     && rm -rf /var/lib/apt/lists/*
-
-# Enable Apache modules
-RUN a2enmod perl && a2enmod apreq2
 
 # Create app directories
 RUN mkdir -p /home /var/www/qst
 
 # Copy QST files
-COPY qst_gpl/QST.pm /home/QST.pm
-COPY qst_gpl/startup.pl /home/startup.pl
 COPY qst_gpl/qst.sql /home/qst.sql
 COPY qst_gpl/qst/ /var/www/qst/
 COPY qst_gpl/schools/ /var/www/qst/schools/
